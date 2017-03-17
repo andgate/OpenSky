@@ -13,25 +13,28 @@ import Machine.Sky.MemoryEmulator.RAM (ram)
 import Machine.Sky.MemoryEmulator.Default (defaultContents)
 
 
-{-# ANN topEntity
-  (defTop
-    { t_name     = "sky"
-    , t_outputs  = ["Led", "an", "seg"]
-    }) #-}
-topEntity :: Signal SevenSegOut
-topEntity = bundle (en, an, seg)
-    where
-    (an, seg) = display $ fmap repeat dat
-    (en, dat) = unbundle output
-    (ramRequest, output, _) = unbundle $ cpuHardware ramResponse
-    ramResponse = ramHardware ramRequest
-
 
 type RAMStatusBits = (Bit, Bit, BitVector 64) -- Enable, read/write, data
 type RAMActionBits = (Bit, Bit, BitVector 30, BitVector 64) -- Enable, read/write, ptr, data
 type OutputBits    = (Bit, Unsigned 32) -- Enable, data
 type SevenSegOut   = (Bit, Annodes, Segments)
 type HaltBit       = Bit
+
+{-# ANN topEntity
+  (defTop
+    { t_name     = "sky"
+    , t_outputs  = ["Led", "an", "seg"]
+    }) #-}
+topEntity :: Signal SevenSegOut
+topEntity = bundle (low, an, seg)
+  where
+    (an, seg) = display $ fmap repeat tst
+    tst = signal 104
+    (en, dat) = unbundle output
+    (ramRequest, output, _) = unbundle $ cpuHardware ramResponse
+    ramResponse = ramHardware ramRequest
+
+
 
 ramstatus :: RAMStatusBits -> RamStatus
 ramstatus (0,_,_) = NoUpdate
