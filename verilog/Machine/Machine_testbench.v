@@ -2,8 +2,9 @@
 module Machine_testbench(done);
   output [0:0] done;
   wire [0:0] finished;
-  wire [1:0] x;
-  wire [1:0] result;
+  wire system1000;
+  wire system1000_rstn;
+  wire [12:0] result;
   assign done = finished;
   
   // pragma translate_off
@@ -14,10 +15,33 @@ module Machine_testbench(done);
   end
   // pragma translate_on
   
-  Machine_topEntity totest
-  (.x (x),.result (result));
+  // pragma translate_off
+  reg  clk;
+  always begin
+    clk = 0;
+    #3 forever begin
+      clk = ~ clk;
+      #500;
+      clk = ~ clk;
+      #500;
+    end
+  end
+  assign system1000 = clk;
+  // pragma translate_on
   
-  assign x = {2 {1'bx}};
+  // pragma translate_off
+  reg  rst_n;
+  initial begin
+    #1 rst_n = 0;
+    #2 rst_n = 1;
+  end
+  assign system1000_rstn = rst_n;
+  // pragma translate_on
+  
+  Machine_topEntity totest
+  (.system1000 (system1000)
+  ,.system1000_rstn (system1000_rstn)
+  ,.result (result));
   
   reg [0:0] done_0;
   always begin
