@@ -3,7 +3,7 @@ module Machine_testbench(done);
   output [0:0] done;
   wire [0:0] finished;
   wire [1:0] x;
-  wire [0:0] result;
+  wire [1:0] result;
   assign done = finished;
   
   // pragma translate_off
