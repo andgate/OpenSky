@@ -4,7 +4,8 @@ module Machine_testbench(done);
   wire [0:0] finished;
   wire system1000;
   wire system1000_rstn;
-  wire [12:0] result;
+  wire [7:0] x;
+  wire [11:0] result;
   assign done = finished;
   
   // pragma translate_off
@@ -41,7 +42,10 @@ module Machine_testbench(done);
   Machine_topEntity totest
   (.system1000 (system1000)
   ,.system1000_rstn (system1000_rstn)
+  ,.x (x)
   ,.result (result));
+  
+  assign x = {8 {1'bx}};
   
   reg [0:0] done_0;
   always begin
