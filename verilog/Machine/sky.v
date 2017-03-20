@@ -1,15 +1,21 @@
 // Automatically generated Verilog-2001
-module sky(Sw,Btn,mclk,an,seg);
-  input [3:0] Sw;
+module sky(Sw
+          ,Btn
+          ,mclk
+          ,an
+          ,seg
+          ,Led);
+  input [7:0] Sw;
   input [3:0] Btn;
   input [0:0] mclk;
   output [3:0] an;
   output [7:0] seg;
+  output [7:0] Led;
   wire system1000;
   wire clock_locked;
   wire system1000_rstn;
-  wire [7:0] input_0;
-  wire [11:0] output_0;
+  wire [11:0] input_0;
+  wire [19:0] output_0;
   clock clock_inst
   (.clksrc (mclk)
   ,.clk (system1000)
@@ -33,12 +39,14 @@ module sky(Sw,Btn,mclk,an,seg);
   assign input_0 = {Sw,Btn};
   
   Machine_topEntity Machine_topEntity_inst
-  (.x (input_0)
+  (.ds1 (input_0)
   ,.system1000 (system1000)
   ,.system1000_rstn (system1000_rstn)
   ,.result (output_0));
   
-  assign an = output_0[11:8];
+  assign an = output_0[19:16];
   
-  assign seg = output_0[7:0];
+  assign seg = output_0[15:8];
+  
+  assign Led = output_0[7:0];
 endmodule

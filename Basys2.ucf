@@ -54,7 +54,7 @@ NET "an<0>" LOC = "K14"; # Bank = 1, Signal name = AN0
 #NET "Led<3>" LOC = "P6" ; # Bank = 2, Signal name = LD3
 #NET "Led<2>" LOC = "P7" ; # Bank = 3, Signal name = LD2
 #NET "Led<1>" LOC = "M11" ; # Bank = 2, Signal name = LD1
-#NET "Led<0>" LOC = "M5" ;  # Bank = 2, Signal name = LD0
+NET "Led<0>" LOC = "M5" ;  # Bank = 2, Signal name = LD0
 
 # Pin assignment for Switches
 #NET "Sw<7>" LOC = "N3";

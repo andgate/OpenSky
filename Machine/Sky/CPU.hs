@@ -3,45 +3,39 @@ module Machine.Sky.CPU where
 
 import CLaSH.Prelude
 
-import Machine.Sky.SevenSeg
 import Machine.Sky.Types
 
+type CpuIn = (Switches, Buttons)
+type CpuOut = (Address, MayWrite)
 
-type CpuIn = (SwitchArray, ButtonArray)
 
 data CpuState = 
   CpuState
-  { r1 :: Nibble
-  , r2 :: Nibble
-  , r3 :: Nibble
-  , r4 :: Nibble
-  , an :: Nibble
+  { addr  :: Address
   } deriving Show
 
 initial :: CpuState
-initial = CpuState 0b0000 0b0000 0b0000 0b0000 0b1110
+initial = CpuState 0
 
 
-cpu :: CpuState -> CpuIn -> (CpuState, (Annodes, Segments))
-cpu s (sw, btn) = (update sw btn s, render s)
+cpuHardware :: Signal CpuIn -> Signal CpuOut
+cpuHardware = mealy cpu initial
 
-update :: SwitchArray -> ButtonArray -> CpuState-> CpuState
-update sw btn s = s' { an = rotate (an s) 1 }
+
+cpu :: CpuState -> CpuIn -> (CpuState, CpuOut)
+cpu s i@(sw, btn) = (s', (currAddr, maywrite))
   where
-    s' = case btn of
-          0b1000  -> s { r1 = sw }
-          0b0100  -> s { r2 = sw }
-          0b0010  -> s { r3 = sw }
-          0b0001  -> s { r4 = sw }
-          _       -> s
+    currAddr = addressSelector (addr s) btn
+    s' = s { addr = currAddr }
+    maywrite = case testBit btn 0 of
+        True -> Just (currAddr, sw)
+        False -> Nothing
 
 
-render :: CpuState -> (Annodes, Segments)
-render s = (an s, seg) 
+addressSelector :: Address -> Buttons -> Address
+addressSelector prevAddr btn = newAddr
   where
-    seg = convert v
-    v = case anode_n (an s) of
-        0 -> r1 s
-        1 -> r2 s
-        2 -> r3 s
-        3 -> r4 s
+    newAddr = case (testBit btn 3, testBit btn 2) of
+          (True, False)  -> prevAddr - 1
+          (False, True)  -> prevAddr + 1
+          _       -> prevAddr

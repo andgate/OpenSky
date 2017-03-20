@@ -1,11 +1,12 @@
 // Automatically generated Verilog-2001
-module Machine_convert(ds
-                      ,result);
-  input [3:0] ds;
+module Machine_nibbleToSeg(v
+                          ,result);
+  input [3:0] v;
   output [7:0] result;
   reg [7:0] result_reg;
   always @(*) begin
-    case(ds)
+    case(v)
+      4'b0000 : result_reg = 8'b01000000;
       4'b0001 : result_reg = 8'b01111001;
       4'b0010 : result_reg = 8'b00100100;
       4'b0011 : result_reg = 8'b00110000;
@@ -21,7 +22,7 @@ module Machine_convert(ds
       4'b1101 : result_reg = 8'b00100001;
       4'b1110 : result_reg = 8'b00000110;
       4'b1111 : result_reg = 8'b00001110;
-      default : result_reg = 8'b01000000;
+      default : result_reg = {8 {1'bx}};
     endcase
   end
   assign result = result_reg;

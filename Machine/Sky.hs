@@ -3,17 +3,18 @@ module Machine.Sky (topEntity) where
 
 import CLaSH.Prelude
 import Machine.Sky.CPU
-import Machine.Sky.SevenSeg
+import Machine.Sky.IO.SevenSeg
 import Machine.Sky.Types
 
 import CLaSH.Signal.Explicit
+import CLaSH.Sized.BitVector ((++#))
 
 
 {-# ANN topEntity
   (defTop
     { t_name     = "sky"
     , t_inputs  = ["Sw", "Btn"]
-    , t_outputs  = ["an", "seg"]
+    , t_outputs  = ["an", "seg", "Led"]
     , t_extraIn  = [ ("mclk", 1)
                    ]
     , t_clocks  = [ClockSource
@@ -26,16 +27,10 @@ import CLaSH.Signal.Explicit
                     }
                   ]
     }) #-}
-topEntity :: (Signal SwitchArray, Signal ButtonArray) -> (Signal Annodes, Signal Segments, Signal Halt)
-topEntity = (an, segs, halt)
+topEntity :: (Signal Switches, Signal Buttons) -> (Signal Annodes, Signal Segments, Signal Value)
+topEntity (sw, btn) = (an, segs, sw)
   where
-    (an, segs) = unbundle vout
-
-    (ramRequest, gpuRequest, halt) = unbundle $ cpuHardware ramResponse
-    ramResponse = ramHardware ramRequest
-    
-    (vramRequest, cpuRequest, vout, halt) = unbundle $ gpuHardware vramResponse gpuRequest
-    vramResponse = vramHardware vramRequest
-
-cpuHardware :: Signal CpuIn -> Signal (Annodes, Segments)
-cpuHardware = mealy cpu initial
+    (an, segs) = unbundle . sevenSeg $ taggedVal
+    taggedVal = (++#) <$> currAddr <*> currVal
+    (currAddr, maywrite) = unbundle . cpuHardware . bundle $ (sw, btn)
+    currVal = blockRam (replicate d256 0) currAddr maywrite
